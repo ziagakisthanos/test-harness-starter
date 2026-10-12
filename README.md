@@ -58,3 +58,25 @@ docker compose run --rm tests
 - Τι θα βελτιώνατε για πραγματική εφαρμογή: ελεγχόμενο test environment, δεδομένα, secrets, περισσότερα είδη tests.
 
 Οι οδηγίες και ο αρχικός κώδικας παρέχονται για μελέτη. Οι όροι χρήσης του Playwright και των υπόλοιπων εργαλείων ισχύουν ξεχωριστά.
+
+## Σημειώσεις για τη συνέντευξη
+
+**Σενάρια και tests.** Και τα έξι σενάρια του TEST_PLAN.md υλοποιημένα στο `tests/todo.spec.js`, πάνω στο κοινό `todo` fixture:
+- `adds a todo and clears the input` — στέλνει κείμενο, ελέγχει το text του item, ότι το checkbox ξεκινά unchecked και ότι το input αδειάζει.
+- `marks a todo as completed` — check στο checkbox, ελέγχει `toBeChecked()` και την κλάση `completed` στο item.
+- `deletes a todo and leaves the other one` — προσθέτει δύο items, διαγράφει το ένα μέσω hover + delete button, ελέγχει ότι μένει μόνο το άλλο.
+- `filters active and completed and all todos` — ένα completed, ένα active, ελέγχει τις τρεις λίστες μέσω των links Active/Completed/All.
+- `rejects whitespace only todo` — Enter με μόνο κενά, ελέγχει ότι δεν προστέθηκε δεύτερο item.
+- `persists todo state after reload` — προσθήκη + completion + `page.reload()`, ελέγχει ότι διατηρούνται κείμενο και κατάσταση.
+
+**AI usage και review.** _[συμπλήρωσε: ποια prompts από το AI_PROMPTS.md χρησιμοποίησες, τι πρότεινε το εργαλείο αρχικά, τι άλλαξες εσύ πριν το δεχτείς — π.χ. locator strategy, isolation μεταξύ tests, κάποιο assertion που χαλάρωσε και το ξανάσφιξες]._ Μετά την υλοποίηση, η λύση συγκρίθηκε με `reference/additional-tests.js` χωρίς να κρατηθούν διπλά tests.
+
+**Failure diagnosis.** Το `npm run test:broken` αποτυγχάνει σκόπιμα το test `adds a todo and clears the input`: μέσω του `BROKEN_SELECTOR` env var, το fixture ψάχνει `getByPlaceholder('INTENTIONALLY WRONG PLACEHOLDER')` αντί για `'What needs to be done?'`. Αποτέλεσμα: `locator.fill: Test timeout of 10000ms exceeded` στο `fixtures.js:11`, με trace/screenshot στο `test-results-broken/`. Η αιτία είναι στο **test fixture** (λάθος locator), όχι στην εφαρμογή — το ίδιο demo δουλεύει κανονικά με το σωστό placeholder, όπως αποδεικνύει το `npm test`.
+
+**Πραγματικές εκτελέσεις.**
+- `npm test` → 6 passed (chromium, κανονικός locator).
+- `npm run test:broken` → 1 failed όπως αναμενόταν (timeout στο λάθος locator), exit code non-zero.
+- `git push` στο `origin/main` (`ziagakisthanos/test-harness-starter`) — _[συμπλήρωσε: αποτέλεσμα του πιο πρόσφατου GitHub Actions run, link στο playwright-report artifact]_.
+- Docker (`docker build . -t danaos-testing-starter` + `docker run --rm --init --ipc=host danaos-testing-starter`) → 6 passed, 1 worker (λόγω `CI=1` στο Dockerfile), χωρίς αλλαγές στα tests· ίδιο αποτέλεσμα με το τοπικό run.
+
+**Τι θα βελτίωνα για πραγματική εφαρμογή.** Σταθερό, ελεγχόμενο test environment αντί για δημόσιο demo (π.χ. docker-compose με seeded test database, όχι production/shared δεδομένα). Δεδομένα και fixtures ξεχωριστά από τη λογική του test (test data builders / factories), ώστε το ίδιο σενάριο να τρέχει με διαφορετικά inputs. Διαχείριση secrets μέσω CI secrets store, ποτέ hardcoded. Περισσότερα είδη ελέγχων πέρα από UI E2E: API/contract tests στο επίπεδο του backend, πιθανά visual regression tests, και ένα tagging σύστημα (`@smoke`, `@regression`) ώστε το CI να τρέχει γρήγορα smoke tests σε κάθε PR και πλήρες suite σε merge στο main. Παρακολούθηση flaky tests με retries + reporting αντί να αγνοούνται.
