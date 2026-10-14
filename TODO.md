@@ -11,7 +11,7 @@ educational/demo-only, no danaos code or confirmed stack involved. finalizing to
 
 - [x] @smoke / @regression tags on all six tests + `npm run test:smoke` / `npm run test:regression`
 - [x] test data builders — tests/testData.js, uniqueTodo(label), all six tests refactored
-- [ ] propose one CI/Dockerfile change yourself (e.g. cache playwright browsers between runs), get it reviewed before accepting
+- [x] cache playwright browsers in CI (actions/cache@v4, keyed on playwright version) — committed, unverified until pushed + a run completes
 
 ## 3. production-readiness gaps (checklist, already named in README)
 
