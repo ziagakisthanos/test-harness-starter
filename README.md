@@ -76,7 +76,7 @@ docker compose run --rm tests
 **Πραγματικές εκτελέσεις.**
 - `npm test` → 6 passed (chromium, κανονικός locator).
 - `npm run test:broken` → 1 failed όπως αναμενόταν (timeout στο λάθος locator), exit code non-zero.
-- `git push` στο `origin/main` (`ziagakisthanos/test-harness-starter`) — _[συμπλήρωσε: αποτέλεσμα του πιο πρόσφατου GitHub Actions run, link στο playwright-report artifact]_.
+- `git push` στο `origin/main` (`ziagakisthanos/test-harness-starter`) — GitHub Actions run πράσινο (6/6 passed): https://github.com/ziagakisthanos/test-harness-starter/actions/runs/38273173664 , το `playwright-report` artifact είναι διαθέσιμο στη σελίδα του run.
 - Docker (`docker build . -t danaos-testing-starter` + `docker run --rm --init --ipc=host danaos-testing-starter`) → 6 passed, 1 worker (λόγω `CI=1` στο Dockerfile), χωρίς αλλαγές στα tests· ίδιο αποτέλεσμα με το τοπικό run.
 
 **Τι θα βελτίωνα για πραγματική εφαρμογή.** Σταθερό, ελεγχόμενο test environment αντί για δημόσιο demo (π.χ. docker-compose με seeded test database, όχι production/shared δεδομένα). Δεδομένα και fixtures ξεχωριστά από τη λογική του test (test data builders / factories), ώστε το ίδιο σενάριο να τρέχει με διαφορετικά inputs. Διαχείριση secrets μέσω CI secrets store, ποτέ hardcoded. Περισσότερα είδη ελέγχων πέρα από UI E2E: API/contract tests στο επίπεδο του backend, πιθανά visual regression tests, και ένα tagging σύστημα (`@smoke`, `@regression`) ώστε το CI να τρέχει γρήγορα smoke tests σε κάθε PR και πλήρες suite σε merge στο main. Παρακολούθηση flaky tests με retries + reporting αντί να αγνοούνται.

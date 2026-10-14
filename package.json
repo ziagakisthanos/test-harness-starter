@@ -5,6 +5,8 @@
   "description": "Educational Playwright test harness for the public TodoMVC demo",
   "scripts": {
     "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
     "test:ui": "playwright test --ui",
     "test:broken": "node scripts/broken-run.cjs",
     "report": "playwright show-report",
