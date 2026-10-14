@@ -10,7 +10,7 @@ educational/demo-only, no danaos code or confirmed stack involved. finalizing to
 ## 2. harness-building practice (done today)
 
 - [x] @smoke / @regression tags on all six tests + `npm run test:smoke` / `npm run test:regression`
-- [ ] test data builders — move hardcoded strings into named fixtures so one scenario can run with different inputs
+- [x] test data builders — tests/testData.js, uniqueTodo(label), all six tests refactored
 - [ ] propose one CI/Dockerfile change yourself (e.g. cache playwright browsers between runs), get it reviewed before accepting
 
 ## 3. production-readiness gaps (checklist, already named in README)
