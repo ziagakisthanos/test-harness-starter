@@ -5,7 +5,7 @@ educational/demo-only, no danaos code or confirmed stack involved. finalizing to
 ## 1. personal write-up (README interview notes)
 
 - [x] CI run link — https://github.com/ziagakisthanos/test-harness-starter/actions/runs/38273173664 (6/6 passed)
-- [ ] AI usage paragraph — which AI_PROMPTS.md prompts were used writing the six tests, what AI proposed, what got corrected (locator choice, hover-before-click fix on delete, etc). only you can write this, from memory.
+- [x] AI usage paragraph — filled in README using actual session history (delete hover fix, whitespace-reject assertion upgrade)
 
 ## 2. harness-building practice (done today)
 

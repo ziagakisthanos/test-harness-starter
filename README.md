@@ -69,7 +69,13 @@ docker compose run --rm tests
 - `rejects whitespace only todo` — Enter με μόνο κενά, ελέγχει ότι δεν προστέθηκε δεύτερο item.
 - `persists todo state after reload` — προσθήκη + completion + `page.reload()`, ελέγχει ότι διατηρούνται κείμενο και κατάσταση.
 
-**AI usage και review.** _[συμπλήρωσε: ποια prompts από το AI_PROMPTS.md χρησιμοποίησες, τι πρότεινε το εργαλείο αρχικά, τι άλλαξες εσύ πριν το δεχτείς — π.χ. locator strategy, isolation μεταξύ tests, κάποιο assertion που χαλάρωσε και το ξανάσφιξες]._ Μετά την υλοποίηση, η λύση συγκρίθηκε με `reference/additional-tests.js` χωρίς να κρατηθούν διπλά tests.
+**AI usage και review.** Χρησιμοποιήθηκαν τα prompts Σχεδιασμός και Υλοποίηση από το AI_PROMPTS.md, ένα σενάριο τη φορά. Σε αρκετά σενάρια (filter, reject-whitespace, persist-reload) το AI έλεγχε πρώτα το πραγματικό DOM ή behavior του TodoMVC (μέσω αυτόνομου script) πριν προτείνει πλάνο, αντί να μαντέψει locators.
+
+Στο delete test το AI έλεγξε πρώτα το πραγματικό DOM (outerHTML ενός todo item) ώστε ο locator να βασίζεται σε στοιχεία και όχι σε υπόθεση — βρέθηκε `aria-label="Delete"`. Αυτό όμως δεν αποκάλυψε ότι το κουμπί είναι hidden μέχρι hover (css, όχι DOM structure): το πρώτο run απέτυχε με timeout. Η αιτία εντοπίστηκε από το πραγματικό error log (actionability timeout, όχι "element not found"), η διόρθωση (`row.hover()` πριν το click) επαληθεύτηκε με re-run πριν γίνει αποδεκτή.
+
+Στο whitespace-reject test το AI πρότεινε απλό `toHaveCount(0)` σε άδεια λίστα· η δική μου υλοποίηση ήταν πιο αυστηρή — προσθέτει πρώτα ένα πραγματικό todo και μετά ελέγχει ότι το whitespace submission δεν το επηρεάζει (`toHaveText(['task'])`), πιάνοντας έτσι ένα επιπλέον πιθανό bug (καταστροφή υπάρχοντος state) που το αρχικό AI assertion δεν θα έπιανε.
+
+Μετά την υλοποίηση, η λύση συγκρίθηκε με `reference/additional-tests.js` χωρίς να κρατηθούν διπλά tests.
 
 **Failure diagnosis.** Το `npm run test:broken` αποτυγχάνει σκόπιμα το test `adds a todo and clears the input`: μέσω του `BROKEN_SELECTOR` env var, το fixture ψάχνει `getByPlaceholder('INTENTIONALLY WRONG PLACEHOLDER')` αντί για `'What needs to be done?'`. Αποτέλεσμα: `locator.fill: Test timeout of 10000ms exceeded` στο `fixtures.js:11`, με trace/screenshot στο `test-results-broken/`. Η αιτία είναι στο **test fixture** (λάθος locator), όχι στην εφαρμογή — το ίδιο demo δουλεύει κανονικά με το σωστό placeholder, όπως αποδεικνύει το `npm test`.
 
