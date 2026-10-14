@@ -1,54 +1,63 @@
 const { test, expect } = require('../fixtures');
+const { uniqueTodo } = require('./testData');
 
 test('adds a todo and clears the input', { tag: '@smoke' }, async ({ todo }) => {
-  await todo.add('Prepare interview demo');
-  await expect(todo.items).toHaveText(['Prepare interview demo']);
+  const text = uniqueTodo('prepare interview demo');
+  await todo.add(text);
+  await expect(todo.items).toHaveText([text]);
   await expect(todo.items.getByRole('checkbox')).not.toBeChecked();
   await expect(todo.input).toHaveValue('');
 });
 
 test('marks a todo as completed', { tag: '@smoke' }, async ({ todo }) => {
-  await todo.add('Review assertions');
+  const text = uniqueTodo('review assertions');
+  await todo.add(text);
   await todo.items.getByRole('checkbox').check();
   await expect(todo.items.getByRole('checkbox')).toBeChecked();
   await expect(todo.items).toHaveClass(/completed/);
 });
 
 test('deletes a todo and leaves the other one', { tag: '@regression' }, async ({ todo }) => {
-  await todo.add('remove this');
-  await todo.add('keep this');
-  const row = todo.items.filter({ hasText: 'remove this' });
+  const toRemove = uniqueTodo('remove this');
+  const toKeep = uniqueTodo('keep this');
+  await todo.add(toRemove);
+  await todo.add(toKeep);
+  const row = todo.items.filter({ hasText: toRemove });
   await row.hover();
   await row.getByRole('button', { name: 'Delete' }).click();
-  await expect(todo.items).toHaveText(['keep this']);
+  await expect(todo.items).toHaveText([toKeep]);
 });
 
 test('filters active and completed and all todos', { tag: '@regression' }, async ({ todo, page }) => {
-  await todo.add('active task');
-  await todo.add('completed task');
-  await todo.items.filter({ hasText: 'completed task' }).getByRole('checkbox').check();
+  const active = uniqueTodo('active task');
+  const completed = uniqueTodo('completed task');
+  await todo.add(active);
+  await todo.add(completed);
+  await todo.items.filter({ hasText: completed }).getByRole('checkbox').check();
 
   await page.getByRole('link', { name: 'Active' }).click();
-  await expect(todo.items).toHaveText(['active task']);
+  await expect(todo.items).toHaveText([active]);
 
   await page.getByRole('link', { name: 'Completed' }).click();
-  await expect(todo.items).toHaveText(['completed task']);
+  await expect(todo.items).toHaveText([completed]);
 
   await page.getByRole('link', { name: 'All' }).click();
-  await expect(todo.items).toHaveText(['active task', 'completed task']);
+  await expect(todo.items).toHaveText([active, completed]);
 });
 
 test('rejects whitespace only todo', { tag: '@regression' }, async ({ todo }) => {
-  await todo.add('task');
+  const text = uniqueTodo('task');
+  await todo.add(text);
   await todo.add('   ');
-  await expect(todo.items).toHaveText(['task']);
+  await expect(todo.items).toHaveText([text]);
 });
 
 test('persists todo state after reload', { tag: '@regression' }, async ({ todo, page }) => {
-  await todo.add('persist me');
+  const text = uniqueTodo('persist me');
+  await todo.add(text);
   await todo.items.getByRole('checkbox').check();
   await page.reload();
-  await expect(todo.items).toHaveText(['persist me']);
+  await expect(todo.items).toHaveText([text]);
   await expect(todo.items.getByRole('checkbox')).toBeChecked();
   await expect(todo.items).toHaveClass(/completed/);
 });
